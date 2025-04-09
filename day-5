@@ -1,0 +1,210 @@
+# Import required libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+import warnings
+warnings.filterwarnings('ignore')
+
+# Set the style for our plots
+plt.style.use('seaborn-v0_8')
+sns.set(font_scale=1.2)
+
+# Load the Excel file (update the path to where your file is located)
+file_path = r"C:\path\to\anova_datasets.xlsx"  # Update this path
+
+# Load both sheets from the Excel file
+satisfaction_df = pd.read_excel(file_path, sheet_name="One_Way_ANOVA")
+training_df = pd.read_excel(file_path, sheet_name="Two_Way_ANOVA")
+
+#-----------------------------------------
+# Lab Exercise 1: One-Way ANOVA
+#-----------------------------------------
+print("Lab Exercise 1: One-Way ANOVA")
+print("\nDataset Preview:")
+print(satisfaction_df.head())
+
+# Basic information about the dataset
+print("\nDataset Information:")
+print(satisfaction_df.info())
+
+print("\nDescriptive Statistics by Store Location:")
+print(satisfaction_df.groupby('Store_Location')['Satisfaction_Score'].describe())
+
+# Visualize the data with boxplot
+plt.figure(figsize=(10, 6))
+sns.boxplot(x='Store_Location', y='Satisfaction_Score', data=satisfaction_df)
+plt.title('Customer Satisfaction Scores by Store Location')
+plt.xlabel('Store Location')
+plt.ylabel('Satisfaction Score')
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# Perform One-Way ANOVA
+print("\n3. Null and Alternative Hypotheses:")
+print("   H0: μA = μB = μC (Mean satisfaction scores are equal across all three cities)")
+print("   H1: At least one mean is different from the others")
+
+# Prepare the data for ANOVA
+city_a = satisfaction_df[satisfaction_df['Store_Location'] == 'City A']['Satisfaction_Score']
+city_b = satisfaction_df[satisfaction_df['Store_Location'] == 'City B']['Satisfaction_Score']
+city_c = satisfaction_df[satisfaction_df['Store_Location'] == 'City C']['Satisfaction_Score']
+
+# Perform the ANOVA test
+f_stat, p_value = stats.f_oneway(city_a, city_b, city_c)
+
+print("\n4. ANOVA Results:")
+print(f"   F-statistic: {f_stat:.4f}")
+print(f"   p-value: {p_value:.4f}")
+
+# Interpret the result
+alpha = 0.05
+if p_value < alpha:
+    print("\n5. Interpretation:")
+    print(f"   The p-value ({p_value:.4f}) is less than alpha ({alpha}), so we reject the null hypothesis.")
+    print("   There is a statistically significant difference in satisfaction scores between the three cities.")
+else:
+    print("\n5. Interpretation:")
+    print(f"   The p-value ({p_value:.4f}) is greater than alpha ({alpha}), so we fail to reject the null hypothesis.")
+    print("   There is no statistically significant difference in satisfaction scores between the three cities.")
+
+# Alternative approach using statsmodels (more detailed output)
+print("\nAlternative ANOVA using statsmodels:")
+model = ols('Satisfaction_Score ~ C(Store_Location)', data=satisfaction_df).fit()
+anova_table = sm.stats.anova_lm(model, typ=2)
+print(anova_table)
+
+# If ANOVA is significant, perform post-hoc tests (Tukey's HSD)
+if p_value < alpha:
+    print("\nPost-hoc Analysis (Tukey's HSD):")
+    from statsmodels.stats.multicomp import pairwise_tukeyhsd
+    
+    # Perform Tukey's HSD test
+    tukey = pairwise_tukeyhsd(satisfaction_df['Satisfaction_Score'], 
+                              satisfaction_df['Store_Location'], 
+                              alpha=0.05)
+    
+    # Print the result
+    print(tukey)
+    
+    # Visualize the results
+    plt.figure(figsize=(8, 6))
+    tukey.plot_simultaneous()
+    plt.title("Tukey's HSD Test for Store Locations")
+    plt.tight_layout()
+    plt.show()
+
+#-----------------------------------------
+# Lab Exercise 2: Two-Way ANOVA
+#-----------------------------------------
+print("\n" + "="*50)
+print("Lab Exercise 2: Two-Way ANOVA")
+print("="*50)
+
+print("\nDataset Preview:")
+print(training_df.head())
+
+# Basic information about the dataset
+print("\nDataset Information:")
+print(training_df.info())
+
+# Assuming the training dataset has columns: Employee_ID, Department, Training_Type, Performance_Score
+# Let's visualize the data
+plt.figure(figsize=(12, 8))
+sns.boxplot(x='Department', y='Performance_Score', hue='Training_Type', data=training_df)
+plt.title('Performance Scores by Department and Training Type')
+plt.xlabel('Department')
+plt.ylabel('Performance Score')
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# Descriptive statistics by Department and Training Type
+print("\nDescriptive Statistics by Department and Training Type:")
+print(training_df.groupby(['Department', 'Training_Type'])['Performance_Score'].describe())
+
+# State the null hypotheses
+print("\n3. Null Hypotheses:")
+print("   H0 (Department): There is no significant effect of department on performance scores.")
+print("   H0 (Training): There is no significant effect of training type on performance scores.")
+print("   H0 (Interaction): There is no significant interaction effect between department and training type on performance scores.")
+
+# Perform Two-Way ANOVA using statsmodels
+formula = 'Performance_Score ~ C(Department) + C(Training_Type) + C(Department):C(Training_Type)'
+model = ols(formula, data=training_df).fit()
+anova_table = sm.stats.anova_lm(model, typ=2)
+
+# Report the ANOVA table
+print("\n4. Two-Way ANOVA Results:")
+print(anova_table)
+
+# Interpret each result
+alpha = 0.05
+print("\n5. Interpretation:")
+
+# Department effect
+dept_p_value = anova_table.loc['C(Department)', 'PR(>F)']
+if dept_p_value < alpha:
+    print(f"   Department Effect: The p-value ({dept_p_value:.4f}) is less than alpha ({alpha}), so we reject the null hypothesis.")
+    print("   There is a statistically significant effect of department on performance scores.")
+else:
+    print(f"   Department Effect: The p-value ({dept_p_value:.4f}) is greater than alpha ({alpha}), so we fail to reject the null hypothesis.")
+    print("   There is no statistically significant effect of department on performance scores.")
+
+# Training type effect
+training_p_value = anova_table.loc['C(Training_Type)', 'PR(>F)']
+if training_p_value < alpha:
+    print(f"   Training Type Effect: The p-value ({training_p_value:.4f}) is less than alpha ({alpha}), so we reject the null hypothesis.")
+    print("   There is a statistically significant effect of training type on performance scores.")
+else:
+    print(f"   Training Type Effect: The p-value ({training_p_value:.4f}) is greater than alpha ({alpha}), so we fail to reject the null hypothesis.")
+    print("   There is no statistically significant effect of training type on performance scores.")
+
+# Interaction effect
+if 'C(Department):C(Training_Type)' in anova_table.index:
+    interaction_p_value = anova_table.loc['C(Department):C(Training_Type)', 'PR(>F)']
+    if interaction_p_value < alpha:
+        print(f"   Interaction Effect: The p-value ({interaction_p_value:.4f}) is less than alpha ({alpha}), so we reject the null hypothesis.")
+        print("   There is a statistically significant interaction effect between department and training type on performance scores.")
+    else:
+        print(f"   Interaction Effect: The p-value ({interaction_p_value:.4f}) is greater than alpha ({alpha}), so we fail to reject the null hypothesis.")
+        print("   There is no statistically significant interaction effect between department and training type on performance scores.")
+else:
+    print("   Interaction Effect: Could not be calculated. Please check the data structure.")
+
+# Visualization of interaction effect (if any)
+plt.figure(figsize=(12, 8))
+interaction_plot = sns.pointplot(x='Department', y='Performance_Score', hue='Training_Type', 
+                                data=training_df, dodge=True, markers=['o', 's', 'D'], 
+                                linestyles=['-', '--', '-.'])
+plt.title('Interaction Effect of Department and Training Type on Performance Scores')
+plt.xlabel('Department')
+plt.ylabel('Mean Performance Score')
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# If significant differences found, we could explore further with post-hoc tests
+if dept_p_value < alpha or training_p_value < alpha:
+    print("\nPost-hoc Analysis:")
+    
+    # For Department effect (if significant)
+    if dept_p_value < alpha:
+        print("\nTukey's HSD for Department:")
+        from statsmodels.stats.multicomp import pairwise_tukeyhsd
+        tukey_dept = pairwise_tukeyhsd(training_df['Performance_Score'], 
+                                      training_df['Department'], 
+                                      alpha=0.05)
+        print(tukey_dept)
+    
+    # For Training Type effect (if significant)
+    if training_p_value < alpha:
+        print("\nTukey's HSD for Training Type:")
+        tukey_training = pairwise_tukeyhsd(training_df['Performance_Score'], 
+                                          training_df['Training_Type'], 
+                                          alpha=0.05)
+        print(tukey_training)
