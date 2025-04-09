@@ -1,0 +1,224 @@
+# Import required libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+
+# Set the style for our plots
+plt.style.use('seaborn-v0_8')
+sns.set(font_scale=1.2)
+
+# Generate a synthetic dataset with Age, Income, and Spending Score
+np.random.seed(42)  # For reproducibility
+
+# Generate 100 samples
+n_samples = 100
+
+# Age between 18 and 70
+age = np.random.randint(18, 71, size=n_samples)
+
+# Income between 30000 and 120000, positively correlated with age
+income = 30000 + (age - 18) * 1000 + np.random.normal(0, 10000, size=n_samples)
+income = np.clip(income, 30000, 120000)  # Limiting to our desired range
+
+# Spending score (1-100), negatively correlated with age and positively with income
+spending_score = 70 - (age - 18) * 0.5 + (income - 30000) * 0.0005 + np.random.normal(0, 10, size=n_samples)
+spending_score = np.clip(spending_score, 1, 100)  # Limiting to our desired range
+
+# Create a DataFrame
+data = pd.DataFrame({
+    'Age': age,
+    'Income': income,
+    'Spending_Score': spending_score
+})
+
+# Display first few rows of the dataset
+print("Generated Dataset:")
+print(data.head())
+
+# Basic descriptive statistics
+print("\nDescriptive Statistics:")
+print(data.describe())
+
+# 1. Correlation Analysis
+print("\n1. CORRELATION ANALYSIS")
+print("\nPearson Correlation Matrix:")
+correlation_matrix = data.corr(method='pearson')
+print(correlation_matrix)
+
+# Visualize correlation matrix
+plt.figure(figsize=(10, 8))
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1, fmt='.2f')
+plt.title('Correlation Matrix Heatmap')
+plt.tight_layout()
+plt.show()
+
+# Scatter plots to visualize relationships
+fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+
+# Age vs Income
+sns.scatterplot(x='Age', y='Income', data=data, ax=axes[0])
+axes[0].set_title('Age vs Income')
+
+# Age vs Spending Score
+sns.scatterplot(x='Age', y='Spending_Score', data=data, ax=axes[1])
+axes[1].set_title('Age vs Spending Score')
+
+# Income vs Spending Score
+sns.scatterplot(x='Income', y='Spending_Score', data=data, ax=axes[2])
+axes[2].set_title('Income vs Spending Score')
+
+plt.tight_layout()
+plt.show()
+
+# Pairplot with regression line
+sns.pairplot(data, kind='reg')
+plt.suptitle('Pairwise Relationships with Regression Lines', y=1.02)
+plt.show()
+
+# 2. Regression Analysis
+print("\n2. REGRESSION ANALYSIS")
+
+# A. Simple Linear Regression: Income vs Age
+print("\nA. Simple Linear Regression: Income ~ Age")
+X = sm.add_constant(data['Age'])
+model_income = sm.OLS(data['Income'], X).fit()
+print(model_income.summary())
+
+# Visualize the regression line
+plt.figure(figsize=(10, 6))
+sns.regplot(x='Age', y='Income', data=data, line_kws={'color': 'red'})
+plt.title('Income vs Age with Regression Line')
+plt.tight_layout()
+plt.show()
+
+# B. Simple Linear Regression: Spending Score vs Age
+print("\nB. Simple Linear Regression: Spending_Score ~ Age")
+model_spending_age = sm.OLS(data['Spending_Score'], X).fit()
+print(model_spending_age.summary())
+
+# Visualize the regression line
+plt.figure(figsize=(10, 6))
+sns.regplot(x='Age', y='Spending_Score', data=data, line_kws={'color': 'red'})
+plt.title('Spending Score vs Age with Regression Line')
+plt.tight_layout()
+plt.show()
+
+# C. Simple Linear Regression: Spending Score vs Income
+print("\nC. Simple Linear Regression: Spending_Score ~ Income")
+X = sm.add_constant(data['Income'])
+model_spending_income = sm.OLS(data['Spending_Score'], X).fit()
+print(model_spending_income.summary())
+
+# Visualize the regression line
+plt.figure(figsize=(10, 6))
+sns.regplot(x='Income', y='Spending_Score', data=data, line_kws={'color': 'red'})
+plt.title('Spending Score vs Income with Regression Line')
+plt.tight_layout()
+plt.show()
+
+# D. Multiple Linear Regression: Spending Score vs Age and Income
+print("\nD. Multiple Linear Regression: Spending_Score ~ Age + Income")
+formula = 'Spending_Score ~ Age + Income'
+model_multiple = ols(formula, data=data).fit()
+print(model_multiple.summary())
+
+# 3. Hypothesis Testing
+print("\n3. HYPOTHESIS TESTING")
+
+# A. t-test: Is there a significant difference in Spending Score between younger and older people?
+age_threshold = data['Age'].median()
+younger_spending = data[data['Age'] < age_threshold]['Spending_Score']
+older_spending = data[data['Age'] >= age_threshold]['Spending_Score']
+
+print(f"\nA. t-test: Spending Score of people younger than {age_threshold} vs older")
+print(f"Younger group (n={len(younger_spending)}): Mean = {younger_spending.mean():.2f}, SD = {younger_spending.std():.2f}")
+print(f"Older group (n={len(older_spending)}): Mean = {older_spending.mean():.2f}, SD = {older_spending.std():.2f}")
+
+t_stat, p_value = stats.ttest_ind(younger_spending, older_spending)
+print(f"t-statistic: {t_stat:.4f}")
+print(f"p-value: {p_value:.4f}")
+print(f"Interpretation: {'Significant difference' if p_value < 0.05 else 'No significant difference'} in Spending Score between age groups at α=0.05")
+
+# Visualize the groups
+plt.figure(figsize=(10, 6))
+sns.boxplot(x=data['Age'] < age_threshold, y=data['Spending_Score'], 
+            labels=[f'Older (Age ≥ {age_threshold})', f'Younger (Age < {age_threshold})'])
+plt.title('Spending Score by Age Group')
+plt.xlabel('Age Group')
+plt.ylabel('Spending Score')
+plt.tight_layout()
+plt.show()
+
+# B. t-test: Is there a significant difference in Spending Score between lower and higher income people?
+income_threshold = data['Income'].median()
+lower_income_spending = data[data['Income'] < income_threshold]['Spending_Score']
+higher_income_spending = data[data['Income'] >= income_threshold]['Spending_Score']
+
+print(f"\nB. t-test: Spending Score of people with income lower than {income_threshold:.2f} vs higher")
+print(f"Lower income group (n={len(lower_income_spending)}): Mean = {lower_income_spending.mean():.2f}, SD = {lower_income_spending.std():.2f}")
+print(f"Higher income group (n={len(higher_income_spending)}): Mean = {higher_income_spending.mean():.2f}, SD = {higher_income_spending.std():.2f}")
+
+t_stat, p_value = stats.ttest_ind(lower_income_spending, higher_income_spending)
+print(f"t-statistic: {t_stat:.4f}")
+print(f"p-value: {p_value:.4f}")
+print(f"Interpretation: {'Significant difference' if p_value < 0.05 else 'No significant difference'} in Spending Score between income groups at α=0.05")
+
+# Visualize the groups
+plt.figure(figsize=(10, 6))
+sns.boxplot(x=data['Income'] < income_threshold, y=data['Spending_Score'], 
+            labels=[f'Higher Income (≥ {income_threshold:.2f})', f'Lower Income (< {income_threshold:.2f})'])
+plt.title('Spending Score by Income Group')
+plt.xlabel('Income Group')
+plt.ylabel('Spending Score')
+plt.tight_layout()
+plt.show()
+
+# C. ANOVA test: Compare Spending Score across multiple age groups
+# Create age groups
+data['Age_Group'] = pd.cut(data['Age'], bins=[17, 30, 45, 60, 71], labels=['18-30', '31-45', '46-60', '61-70'])
+
+print("\nC. ANOVA: Compare Spending Score across age groups")
+for group in data['Age_Group'].unique():
+    group_data = data[data['Age_Group'] == group]['Spending_Score']
+    print(f"Age group {group} (n={len(group_data)}): Mean = {group_data.mean():.2f}, SD = {group_data.std():.2f}")
+
+# Perform ANOVA
+groups = [data[data['Age_Group'] == group]['Spending_Score'] for group in data['Age_Group'].unique()]
+f_stat, p_value = stats.f_oneway(*groups)
+print(f"F-statistic: {f_stat:.4f}")
+print(f"p-value: {p_value:.4f}")
+print(f"Interpretation: {'Significant difference' if p_value < 0.05 else 'No significant difference'} in Spending Score across age groups at α=0.05")
+
+# Visualize the groups
+plt.figure(figsize=(12, 6))
+sns.boxplot(x='Age_Group', y='Spending_Score', data=data)
+plt.title('Spending Score by Age Group')
+plt.xlabel('Age Group')
+plt.ylabel('Spending Score')
+plt.tight_layout()
+plt.show()
+
+# Summary of findings
+print("\nSUMMARY OF FINDINGS:")
+print("1. Correlation Analysis:")
+print(f"   - Age-Income correlation: {correlation_matrix.loc['Age', 'Income']:.2f}")
+print(f"   - Age-Spending Score correlation: {correlation_matrix.loc['Age', 'Spending_Score']:.2f}")
+print(f"   - Income-Spending Score correlation: {correlation_matrix.loc['Income', 'Spending_Score']:.2f}")
+
+print("\n2. Regression Analysis:")
+print(f"   - Income vs Age: R-squared = {model_income.rsquared:.4f}, p-value = {model_income.f_pvalue:.4f}")
+print(f"   - Spending Score vs Age: R-squared = {model_spending_age.rsquared:.4f}, p-value = {model_spending_age.f_pvalue:.4f}")
+print(f"   - Spending Score vs Income: R-squared = {model_spending_income.rsquared:.4f}, p-value = {model_spending_income.f_pvalue:.4f}")
+print(f"   - Multiple Regression (Spending Score ~ Age + Income): R-squared = {model_multiple.rsquared:.4f}, p-value = {model_multiple.f_pvalue:.4f}")
+
+print("\n3. Hypothesis Testing:")
+print("   - t-test for Spending Score between age groups: " + 
+      ("Significant difference" if stats.ttest_ind(younger_spending, older_spending)[1] < 0.05 else "No significant difference"))
+print("   - t-test for Spending Score between income groups: " + 
+      ("Significant difference" if stats.ttest_ind(lower_income_spending, higher_income_spending)[1] < 0.05 else "No significant difference"))
+print("   - ANOVA test for Spending Score across multiple age groups: " + 
+      ("Significant difference" if stats.f_oneway(*groups)[1] < 0.05 else "No significant difference"))
