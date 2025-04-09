@@ -208,3 +208,59 @@ if dept_p_value < alpha or training_p_value < alpha:
                                           training_df['Training_Type'], 
                                           alpha=0.05)
         print(tukey_training)
+
+
+
+
+
+
+
+
+
+
+
+
+# Import required libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+import warnings
+warnings.filterwarnings('ignore')
+
+# Set the style for our plots
+plt.style.use('seaborn-v0_8')
+sns.set(font_scale=1.2)
+
+# Load the uploaded Excel file - Jupyter already has access to the file in the current directory
+# Just use the filename directly
+file_name = "anova_datasets.xlsx"  # Update this to match your exact filename
+
+# Check if the file exists and list all sheets
+try:
+    # List all sheet names in the Excel file
+    sheet_names = pd.ExcelFile(file_name).sheet_names
+    print(f"Excel file found! Available sheets: {sheet_names}")
+    
+    # Load both sheets from the Excel file
+    satisfaction_df = pd.read_excel(file_name, sheet_name="One_Way_ANOVA")
+    training_df = pd.read_excel(file_name, sheet_name="Two_Way_ANOVA")
+    
+    # Display the first few rows of each dataset
+    print("\nOne-Way ANOVA Dataset Preview:")
+    print(satisfaction_df.head())
+    
+    print("\nTwo-Way ANOVA Dataset Preview:")
+    print(training_df.head())
+    
+    print("\nData loaded successfully!")
+    
+except FileNotFoundError:
+    print(f"Error: File '{file_name}' not found. Please check the filename and try again.")
+    
+except Exception as e:
+    print(f"Error loading the file: {str(e)}")
+    print("Make sure the file is properly uploaded and the sheet names are 'One_Way_ANOVA' and 'Two_Way_ANOVA'")
