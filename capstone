@@ -1,0 +1,338 @@
+# -------------------------------------------------------------------------
+# PART 1: DESCRIPTIVE STATISTICS
+# -------------------------------------------------------------------------
+
+print("\n" + "="*80)
+print("PART 1: DESCRIPTIVE STATISTICS")
+print("="*80)
+
+# 1. Sales Analysis by Region
+print("\nSales Analysis by Region:")
+region_stats = df.groupby('Region')['Sales'].agg(['count', 'mean', 'std', 'min', 'max'])
+print(region_stats)
+
+plt.figure(figsize=(12, 6))
+sns.boxplot(x='Region', y='Sales', data=df)
+plt.title('Sales Distribution by Region')
+plt.xlabel('Region')
+plt.ylabel('Sales')
+plt.grid(axis='y', alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# 2. Sales Analysis by Customer Type
+print("\nSales Analysis by Customer Type:")
+customer_stats = df.groupby('Customer')['Sales'].agg(['count', 'mean', 'std', 'min', 'max'])
+print(customer_stats)
+
+plt.figure(figsize=(10, 6))
+sns.boxplot(x='Customer', y='Sales', data=df)
+plt.title('Sales Distribution by Customer Type')
+plt.xlabel('Customer Type')
+plt.ylabel('Sales')
+plt.grid(axis='y', alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# 3. Sales Analysis by Season
+print("\nSales Analysis by Season:")
+season_stats = df.groupby('Season')['Sales'].agg(['count', 'mean', 'std', 'min', 'max'])
+print(season_stats)
+
+plt.figure(figsize=(12, 6))
+sns.boxplot(x='Season', y='Sales', data=df, order=['Winter', 'Spring', 'Summer', 'Fall'])
+plt.title('Sales Distribution by Season')
+plt.xlabel('Season')
+plt.ylabel('Sales')
+plt.grid(axis='y', alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# 4. Sales Analysis by Marketing Strategy
+print("\nSales Analysis by Marketing Strategy:")
+marketing_stats = df.groupby('Marketing')['Sales'].agg(['count', 'mean', 'std', 'min', 'max'])
+print(marketing_stats)
+
+plt.figure(figsize=(12, 6))
+sns.boxplot(x='Marketing', y='Sales', data=df)
+plt.title('Sales Distribution by Marketing Strategy')
+plt.xlabel('Marketing Strategy')
+plt.ylabel('Sales')
+plt.grid(axis='y', alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# 5. Sales Distribution Overall
+plt.figure(figsize=(12, 6))
+sns.histplot(df['Sales'], kde=True, bins=10)
+plt.axvline(df['Sales'].mean(), color='red', linestyle='--', label=f'Mean: {df["Sales"].mean():.2f}')
+plt.axvline(df['Sales'].median(), color='green', linestyle='-.', label=f'Median: {df["Sales"].median():.2f}')
+plt.title('Overall Sales Distribution')
+plt.xlabel('Sales')
+plt.ylabel('Frequency')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# 6. Correlation Analysis (Visualize relationships between categorical variables and sales)
+plt.figure(figsize=(16, 12))
+
+# Region vs. Sales
+plt.subplot(2, 2, 1)
+sns.barplot(x='Region', y='Sales', data=df, ci=None)
+plt.title('Average Sales by Region')
+plt.xlabel('Region')
+plt.ylabel('Average Sales')
+plt.grid(axis='y', alpha=0.3)
+
+# Customer vs. Sales
+plt.subplot(2, 2, 2)
+sns.barplot(x='Customer', y='Sales', data=df, ci=None)
+plt.title('Average Sales by Customer Type')
+plt.xlabel('Customer Type')
+plt.ylabel('Average Sales')
+plt.grid(axis='y', alpha=0.3)
+
+# Season vs. Sales
+plt.subplot(2, 2, 3)
+sns.barplot(x='Season', y='Sales', data=df, order=['Winter', 'Spring', 'Summer', 'Fall'], ci=None)
+plt.title('Average Sales by Season')
+plt.xlabel('Season')
+plt.ylabel('Average Sales')
+plt.grid(axis='y', alpha=0.3)
+
+# Marketing vs. Sales
+plt.subplot(2, 2, 4)
+sns.barplot(x='Marketing', y='Sales', data=df, ci=None)
+plt.title('Average Sales by Marketing Strategy')
+plt.xlabel('Marketing Strategy')
+plt.ylabel('Average Sales')
+plt.grid(axis='y', alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+# 7. Advanced visualizations - Heatmap of Sales by Region and Season
+pivot_region_season = pd.pivot_table(df, values='Sales', index='Region', columns='Season', aggfunc='mean')
+plt.figure(figsize=(12, 8))
+sns.heatmap(pivot_region_season, annot=True, cmap='YlGnBu', fmt='.0f')
+plt.title('Average Sales by Region and Season')
+plt.tight_layout()
+plt.show()
+
+# 8. Advanced visualizations - Heatmap of Sales by Customer Type and Marketing Strategy
+pivot_customer_marketing = pd.pivot_table(df, values='Sales', index='Customer', columns='Marketing', aggfunc='mean')
+plt.figure(figsize=(12, 6))
+sns.heatmap(pivot_customer_marketing, annot=True, cmap='YlGnBu', fmt='.0f')
+plt.title('Average Sales by Customer Type and Marketing Strategy')
+plt.tight_layout()
+plt.show()
+
+# -------------------------------------------------------------------------
+# PART 2: HYPOTHESIS TESTING - COMPARING MARKETING STRATEGIES
+# -------------------------------------------------------------------------
+
+print("\n" + "="*80)
+print("PART 2: HYPOTHESIS TESTING - COMPARING MARKETING STRATEGIES")
+print("="*80)
+
+# 1. Independent t-test: Compare Email Campaign vs TV Ads
+email_sales = df[df['Marketing'] == 'Email Campaign']['Sales']
+tv_sales = df[df['Marketing'] == 'TV Ads']['Sales']
+
+t_stat, p_val = stats.ttest_ind(email_sales, tv_sales, equal_var=False)
+print("\nIndependent t-test: Email Campaign vs TV Ads")
+print(f"t-statistic: {t_stat:.4f}")
+print(f"p-value: {p_val:.4f}")
+print(f"Email Campaign mean: {email_sales.mean():.2f}")
+print(f"TV Ads mean: {tv_sales.mean():.2f}")
+print("Interpretation:", "Significant difference" if p_val < 0.05 else "No significant difference", "at α=0.05")
+
+# 2. Independent t-test: Compare Retail vs Wholesale customer segments
+retail_sales = df[df['Customer'] == 'Retail']['Sales']
+wholesale_sales = df[df['Customer'] == 'Wholesale']['Sales']
+
+t_stat, p_val = stats.ttest_ind(retail_sales, wholesale_sales, equal_var=False)
+print("\nIndependent t-test: Retail vs Wholesale")
+print(f"t-statistic: {t_stat:.4f}")
+print(f"p-value: {p_val:.4f}")
+print(f"Retail mean: {retail_sales.mean():.2f}")
+print(f"Wholesale mean: {wholesale_sales.mean():.2f}")
+print("Interpretation:", "Significant difference" if p_val < 0.05 else "No significant difference", "at α=0.05")
+
+# -------------------------------------------------------------------------
+# PART 3: ANOVA - TESTING SALES VARIATIONS ACROSS MULTIPLE GROUPS
+# -------------------------------------------------------------------------
+
+print("\n" + "="*80)
+print("PART 3: ANOVA - TESTING SALES VARIATIONS ACROSS MULTIPLE GROUPS")
+print("="*80)
+
+# 1. One-Way ANOVA for Marketing Strategies
+print("\nOne-Way ANOVA: Marketing Strategies")
+marketing_groups = [df[df['Marketing'] == strat]['Sales'] for strat in df['Marketing'].unique()]
+f_stat, p_val = stats.f_oneway(*marketing_groups)
+print(f"F-statistic: {f_stat:.4f}")
+print(f"p-value: {p_val:.4f}")
+print("Interpretation:", "Significant difference" if p_val < 0.05 else "No significant difference", "at α=0.05")
+
+# Using statsmodels for more detailed output
+model = ols('Sales ~ C(Marketing)', data=df).fit()
+anova_table = sm.stats.anova_lm(model, typ=2)
+print("\nDetailed ANOVA table for Marketing Strategies:")
+print(anova_table)
+
+# Post-hoc test if ANOVA is significant
+if p_val < 0.05:
+    print("\nPost-hoc Tukey's HSD test for Marketing Strategies:")
+    tukey = pairwise_tukeyhsd(df['Sales'], df['Marketing'], alpha=0.05)
+    print(tukey)
+
+# 2. One-Way ANOVA for Regions
+print("\nOne-Way ANOVA: Regions")
+region_groups = [df[df['Region'] == region]['Sales'] for region in df['Region'].unique()]
+f_stat, p_val = stats.f_oneway(*region_groups)
+print(f"F-statistic: {f_stat:.4f}")
+print(f"p-value: {p_val:.4f}")
+print("Interpretation:", "Significant difference" if p_val < 0.05 else "No significant difference", "at α=0.05")
+
+# Post-hoc test if ANOVA is significant
+if p_val < 0.05:
+    print("\nPost-hoc Tukey's HSD test for Regions:")
+    tukey = pairwise_tukeyhsd(df['Sales'], df['Region'], alpha=0.05)
+    print(tukey)
+
+# 3. One-Way ANOVA for Seasons
+print("\nOne-Way ANOVA: Seasons")
+season_groups = [df[df['Season'] == season]['Sales'] for season in df['Season'].unique()]
+f_stat, p_val = stats.f_oneway(*season_groups)
+print(f"F-statistic: {f_stat:.4f}")
+print(f"p-value: {p_val:.4f}")
+print("Interpretation:", "Significant difference" if p_val < 0.05 else "No significant difference", "at α=0.05")
+
+# Post-hoc test if ANOVA is significant
+if p_val < 0.05:
+    print("\nPost-hoc Tukey's HSD test for Seasons:")
+    tukey = pairwise_tukeyhsd(df['Sales'], df['Season'], alpha=0.05)
+    print(tukey)
+
+# 4. Two-Way ANOVA: Region and Season interaction
+print("\nTwo-Way ANOVA: Region and Season interaction")
+formula = 'Sales ~ C(Region) + C(Season) + C(Region):C(Season)'
+model = ols(formula, data=df).fit()
+anova_table = sm.stats.anova_lm(model, typ=2)
+print(anova_table)
+
+# 5. Two-Way ANOVA: Customer and Marketing interaction
+print("\nTwo-Way ANOVA: Customer and Marketing interaction")
+formula = 'Sales ~ C(Customer) + C(Marketing) + C(Customer):C(Marketing)'
+model = ols(formula, data=df).fit()
+anova_table = sm.stats.anova_lm(model, typ=2)
+print(anova_table)
+
+# -------------------------------------------------------------------------
+# PART 4: INSIGHTS AND RECOMMENDATIONS
+# -------------------------------------------------------------------------
+
+print("\n" + "="*80)
+print("PART 4: INSIGHTS AND RECOMMENDATIONS")
+print("="*80)
+
+# Summarize key findings
+print("\nKEY INSIGHTS FROM THE ANALYSIS:")
+
+# 1. Region performance
+best_region = region_stats.sort_values('mean', ascending=False).index[0]
+print(f"1. Region Performance: {best_region} has the highest average sales at {region_stats.loc[best_region, 'mean']:.2f}")
+
+# 2. Customer segment performance
+best_customer = customer_stats.sort_values('mean', ascending=False).index[0]
+print(f"2. Customer Performance: {best_customer} segment has higher average sales at {customer_stats.loc[best_customer, 'mean']:.2f}")
+
+# 3. Seasonal performance
+best_season = season_stats.sort_values('mean', ascending=False).index[0]
+print(f"3. Seasonal Performance: {best_season} has the highest average sales at {season_stats.loc[best_season, 'mean']:.2f}")
+
+# 4. Marketing strategy effectiveness
+best_marketing = marketing_stats.sort_values('mean', ascending=False).index[0]
+print(f"4. Marketing Effectiveness: {best_marketing} has the highest average sales at {marketing_stats.loc[best_marketing, 'mean']:.2f}")
+
+# 5. Best combination
+region_season_combo = pd.pivot_table(df, values='Sales', index='Region', columns='Season', aggfunc='mean')
+max_region_season = np.unravel_index(region_season_combo.values.argmax(), region_season_combo.shape)
+best_region_season = (region_season_combo.index[max_region_season[0]], region_season_combo.columns[max_region_season[1]])
+max_value = region_season_combo.values[max_region_season]
+
+print(f"5. Best Region-Season Combination: {best_region_season[0]}-{best_region_season[1]} with average sales of {max_value:.2f}")
+
+# 6. Best marketing strategy per customer segment
+customer_marketing_combo = pd.pivot_table(df, values='Sales', index='Customer', columns='Marketing', aggfunc='mean')
+for customer in customer_marketing_combo.index:
+    best_marketing = customer_marketing_combo.loc[customer].idxmax()
+    max_value = customer_marketing_combo.loc[customer, best_marketing]
+    print(f"6. Best Marketing Strategy for {customer}: {best_marketing} with average sales of {max_value:.2f}")
+
+print("\nSTRATEGIC RECOMMENDATIONS:")
+print("1. Regional Strategy: Focus expansion in high-performing regions like", best_region)
+print("2. Customer Focus: Prioritize", best_customer, "customers as they generate higher sales")
+print("3. Seasonal Planning: Allocate more resources during", best_season, "to capitalize on peak sales")
+print("4. Marketing Investment: Increase budget for", best_marketing, "as it drives the highest average sales")
+print("5. Targeted Approach: Customize marketing strategies by customer segment")
+print("6. Data-Driven Decision Making: Implement regular statistical analysis of sales data to track trends and adjust strategies")
+
+
+
+
+
+
+
+
+
+
+
+# Import required libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+import warnings
+warnings.filterwarnings('ignore')
+
+# Set the style for our plots
+plt.style.use('seaborn-v0_8')
+sns.set(font_scale=1.2)
+
+# Load the CSV file
+# Make sure the CSV file is in the same directory as your notebook
+# or provide the full path to the file
+try:
+    # Try to load the file using the exact filename
+    file_name = "capstone_project_market_trend_analysis.csv"  # Update this to match your exact filename
+    df = pd.read_csv(file_name)
+    print("File loaded successfully!")
+except FileNotFoundError:
+    print(f"File '{file_name}' not found. Please provide the correct file name.")
+    # You might want to try with a different filename or ask for user input
+    alternative_name = input("Enter the correct CSV filename (including .csv extension): ")
+    try:
+        df = pd.read_csv(alternative_name)
+        print("File loaded successfully!")
+    except:
+        print("Error loading the file. Please check the filename and path.")
+
+# Display the first few rows to verify the data was loaded correctly
+print("\nDataset Preview:")
+print(df.head())
+
+# Basic information about the dataset
+print("\nDataset Information:")
+print(df.info())
+
+# Statistical summary
+print("\nStatistical Summary:")
+print(df.describe())
