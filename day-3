@@ -1,0 +1,221 @@
+# Import required libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+
+# Set the style for our plots
+plt.style.use('seaborn-v0_8')
+sns.set(font_scale=1.2)
+
+# Load the dataset (update the path to where you've downloaded the file)
+df = pd.read_csv(r"C:\path\to\Mall_Customers.csv")  # Update this path
+
+# Display the first few rows to understand the data structure
+print("Dataset Overview:")
+print(df.head())
+
+# Basic information about the dataset
+print("\nDataset Information:")
+print(df.info())
+
+# Statistical summary of the dataset
+print("\nStatistical Summary:")
+print(df.describe())
+
+# 1. Data Selection and Indexing using loc and iloc
+print("\n1. DATA SELECTION AND INDEXING")
+
+# Select the first 5 rows using iloc
+print("\nFirst 5 rows using iloc:")
+print(df.iloc[0:5])
+
+# Extract only "Gender" and "Age" columns for all rows using loc
+print("\nGender and Age columns using loc:")
+print(df.loc[:, ["Gender", "Age"]])
+
+# Retrieve details of customers between age 25 and 40 using conditional filtering
+age_filter = (df["Age"] >= 25) & (df["Age"] <= 40)
+print("\nCustomers between age 25 and 40:")
+print(df.loc[age_filter])
+
+# 2. Handling Missing Values
+print("\n2. HANDLING MISSING VALUES")
+
+# Check for missing values in the dataset
+print("\nMissing values in each column:")
+print(df.isnull().sum())
+
+# Create a copy with some missing values to demonstrate handling techniques
+df_with_missing = df.copy()
+# Introducing some missing values for demonstration
+df_with_missing.iloc[1:5, 2] = np.nan  # Set some Age values to NaN
+df_with_missing.iloc[6:8, 3] = np.nan  # Set some Annual Income values to NaN
+
+print("\nIntroduced missing values for demonstration:")
+print(df_with_missing.isnull().sum())
+
+# Fill missing values with appropriate strategy
+# For Age, use the median
+median_age = df_with_missing["Age"].median()
+df_with_missing["Age"] = df_with_missing["Age"].fillna(median_age)
+print(f"\nFilled missing Age values with median ({median_age}):")
+print(df_with_missing["Age"].isnull().sum())
+
+# For Annual Income, use the mean
+mean_income = df_with_missing["Annual Income (k$)"].mean()
+df_with_missing["Annual Income (k$)"] = df_with_missing["Annual Income (k$)"].fillna(mean_income)
+print(f"\nFilled missing Annual Income values with mean ({mean_income:.2f}):")
+print(df_with_missing["Annual Income (k$)"].isnull().sum())
+
+# Demonstrate dropping rows with missing values
+df_dropped = df_with_missing.copy()
+before_count = len(df_dropped)
+df_dropped = df_dropped.dropna()
+after_count = len(df_dropped)
+print(f"\nDropping rows with missing values removed {before_count - after_count} rows")
+
+# 3. Slicing and Subsetting Data
+print("\n3. SLICING AND SUBSETTING DATA")
+
+# Extract the first 10 rows
+print("\nFirst 10 rows of the dataset:")
+print(df.iloc[:10])
+
+# Retrieve customers with Spending Score > 70
+high_spenders = df[df["Spending Score (1-100)"] > 70]
+print(f"\nCustomers with Spending Score > 70 (Count: {len(high_spenders)}):")
+print(high_spenders.head())
+
+# Filter out customers with Annual Income < 30k$
+higher_income = df[df["Annual Income (k$)"] >= 30]
+print(f"\nCustomers with Annual Income >= 30k$ (Count: {len(higher_income)}):")
+print(higher_income.head())
+
+# 4. Working with NumPy for Numerical Operations
+print("\n4. WORKING WITH NUMPY FOR NUMERICAL OPERATIONS")
+
+# Convert "Annual Income" to NumPy array and calculate statistics
+income_array = np.array(df["Annual Income (k$)"])
+print("\nAnnual Income as NumPy array:")
+print(income_array[:10])  # Show first 10 elements
+
+print(f"\nMean of Annual Income: {np.mean(income_array):.2f}")
+print(f"Standard Deviation of Annual Income: {np.std(income_array):.2f}")
+
+# Identify min and max Spending Score
+spending_min = np.min(df["Spending Score (1-100)"])
+spending_max = np.max(df["Spending Score (1-100)"])
+print(f"\nMinimum Spending Score: {spending_min}")
+print(f"Maximum Spending Score: {spending_max}")
+
+# 5. Statistical Analysis on the Dataset
+print("\n5. STATISTICAL ANALYSIS ON THE DATASET")
+
+# Calculate statistics for Age
+age_mean = df["Age"].mean()
+age_median = df["Age"].median()
+age_mode = df["Age"].mode()[0]
+age_std = df["Age"].std()
+age_var = df["Age"].var()
+
+print("\nStatistics for Age:")
+print(f"Mean: {age_mean:.2f}")
+print(f"Median: {age_median}")
+print(f"Mode: {age_mode}")
+print(f"Standard Deviation: {age_std:.2f}")
+print(f"Variance: {age_var:.2f}")
+
+# Calculate statistics for Annual Income
+income_mean = df["Annual Income (k$)"].mean()
+income_median = df["Annual Income (k$)"].median()
+income_mode = df["Annual Income (k$)"].mode()[0]
+income_std = df["Annual Income (k$)"].std()
+income_var = df["Annual Income (k$)"].var()
+
+print("\nStatistics for Annual Income:")
+print(f"Mean: {income_mean:.2f}")
+print(f"Median: {income_median}")
+print(f"Mode: {income_mode}")
+print(f"Standard Deviation: {income_std:.2f}")
+print(f"Variance: {income_var:.2f}")
+
+# Identify correlation between Annual Income and Spending Score
+corr = df["Annual Income (k$)"].corr(df["Spending Score (1-100)"])
+print(f"\nCorrelation between Annual Income and Spending Score: {corr:.4f}")
+
+# Visualize the correlation
+plt.figure(figsize=(10, 6))
+sns.scatterplot(x="Annual Income (k$)", y="Spending Score (1-100)", data=df, hue="Gender")
+plt.title("Annual Income vs Spending Score")
+plt.xlabel("Annual Income (k$)")
+plt.ylabel("Spending Score (1-100)")
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# Find gender distribution
+gender_counts = df["Gender"].value_counts()
+print("\nGender Distribution:")
+print(gender_counts)
+
+# Visualize gender distribution
+plt.figure(figsize=(8, 6))
+gender_counts.plot(kind="bar", color=["skyblue", "salmon"])
+plt.title("Gender Distribution in the Dataset")
+plt.xlabel("Gender")
+plt.ylabel("Count")
+plt.grid(axis="y", alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# Additional Visualizations - Age Distribution by Gender
+plt.figure(figsize=(10, 6))
+sns.histplot(data=df, x="Age", hue="Gender", multiple="stack", bins=20)
+plt.title("Age Distribution by Gender")
+plt.xlabel("Age")
+plt.ylabel("Count")
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# Annual Income Distribution
+plt.figure(figsize=(10, 6))
+sns.histplot(data=df, x="Annual Income (k$)", kde=True, bins=15)
+plt.axvline(income_mean, color="red", linestyle="--", label=f"Mean: {income_mean:.2f}")
+plt.axvline(income_median, color="green", linestyle="-.", label=f"Median: {income_median}")
+plt.title("Annual Income Distribution")
+plt.xlabel("Annual Income (k$)")
+plt.ylabel("Frequency")
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# Spending Score Distribution
+plt.figure(figsize=(10, 6))
+sns.histplot(data=df, x="Spending Score (1-100)", kde=True, bins=15)
+plt.title("Spending Score Distribution")
+plt.xlabel("Spending Score (1-100)")
+plt.ylabel("Frequency")
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# Correlation Matrix for numerical variables
+corr_matrix = df.select_dtypes(include=[np.number]).corr()
+plt.figure(figsize=(10, 8))
+sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f", linewidths=0.5)
+plt.title("Correlation Matrix")
+plt.tight_layout()
+plt.show()
+
+# Summary of findings
+print("\nSUMMARY OF FINDINGS:")
+print(f"1. The dataset contains {len(df)} customers with information on gender, age, income, and spending score.")
+print(f"2. Age ranges from {df['Age'].min()} to {df['Age'].max()} years with a mean of {age_mean:.2f} years.")
+print(f"3. Annual Income ranges from {df['Annual Income (k$)'].min()}k$ to {df['Annual Income (k$)'].max()}k$ with a mean of {income_mean:.2f}k$.")
+print(f"4. Spending Score ranges from {spending_min} to {spending_max} with varying distributions.")
+print(f"5. Gender distribution: {gender_counts[0]} {gender_counts.index[0]} and {gender_counts[1]} {gender_counts.index[1]}.")
+print(f"6. The correlation between Annual Income and Spending Score is {corr:.4f}, indicating {'a strong' if abs(corr) > 0.7 else 'a moderate' if abs(corr) > 0.3 else 'a weak'} relationship.")
