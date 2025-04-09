@@ -1,0 +1,221 @@
+# Import required libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Set the style for our plots
+plt.style.use('seaborn-v0_8')
+sns.set(font_scale=1.2)
+
+# Task 1: Data Loading and Inspection
+# Load the dataset (adjust the path as needed)
+df = pd.read_csv(r"C:\path\to\daily-bike-share.csv")  # Replace with your actual path
+
+# 1. Display the first 5 rows
+print("First 5 rows of the dataset:")
+print(df.head())
+
+# 2. Get dataset info and check for missing values
+print("\nDataset Information:")
+print(df.info())
+
+# Check for missing values
+print("\nMissing values in each column:")
+print(df.isnull().sum())
+
+# 3. Convert dteday to datetime format
+df['dteday'] = pd.to_datetime(df['dteday'])
+print("\nVerify dteday conversion:")
+print(df.dtypes)
+
+# Task 2: Data Cleaning and Formatting
+# 1. Drop the instant column if it's not useful for analysis
+df = df.drop(['instant'], axis=1)
+
+# 2. Create a new column day_name using dteday to get day names
+df['day_name'] = df['dteday'].dt.day_name()
+print("\nDataset with day_name column:")
+print(df.head())
+
+# 3. Verify the datatype of all columns and convert if necessary
+print("\nDataset dtypes after conversion:")
+print(df.dtypes)
+
+# Convert any object columns to numeric if needed (excluding day_name and dteday)
+for col in df.columns:
+    if df[col].dtype == 'object' and col not in ['day_name', 'dteday']:
+        try:
+            df[col] = pd.to_numeric(df[col])
+            print(f"Converted {col} to numeric")
+        except:
+            print(f"Could not convert {col} to numeric")
+
+# Task 3: Univariate Analysis
+# 1. Plot the distribution of rentals
+plt.figure(figsize=(10, 6))
+sns.histplot(df['rentals'], kde=True, bins=30)
+plt.title('Distribution of Bike Rentals')
+plt.xlabel('Number of Rentals')
+plt.ylabel('Frequency')
+plt.show()
+
+# 2. Use bar plots to analyze frequency of seasons
+plt.figure(figsize=(12, 18))
+
+# Seasons (1-4: spring, summer, fall, winter)
+plt.subplot(3, 1, 1)
+season_counts = df['season'].value_counts().sort_index()
+sns.barplot(x=season_counts.index, y=season_counts.values)
+plt.title('Frequency of Seasons')
+plt.xlabel('Season (1:Spring, 2:Summer, 3:Fall, 4:Winter)')
+plt.ylabel('Count')
+
+# Weekdays
+plt.subplot(3, 1, 2)
+day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+weekday_counts = df['day_name'].value_counts().reindex(day_order)
+sns.barplot(x=weekday_counts.index, y=weekday_counts.values)
+plt.title('Frequency of Weekdays')
+plt.xlabel('Day of Week')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+
+# Weather situations
+plt.subplot(3, 1, 3)
+weather_counts = df['weathersit'].value_counts().sort_index()
+sns.barplot(x=weather_counts.index, y=weather_counts.values)
+plt.title('Frequency of Weather Situations')
+plt.xlabel('Weather Situation (1:Clear, 2:Mist, 3:Light Rain/Snow, 4:Heavy Rain/Snow)')
+plt.ylabel('Count')
+
+plt.tight_layout()
+plt.show()
+
+# Task 4: Bivariate and Multivariate Analysis
+# 1. Create a scatter plot of temp vs rentals
+plt.figure(figsize=(10, 6))
+sns.scatterplot(x='temp', y='rentals', data=df, alpha=0.7)
+plt.title('Temperature vs Bike Rentals')
+plt.xlabel('Temperature (Normalized)')
+plt.ylabel('Number of Rentals')
+plt.show()
+
+# 2. Use box plots for different categorical variables
+plt.figure(figsize=(12, 18))
+
+# Seasons
+plt.subplot(3, 1, 1)
+sns.boxplot(x='season', y='rentals', data=df)
+plt.title('Bike Rentals by Season')
+plt.xlabel('Season (1:Spring, 2:Summer, 3:Fall, 4:Winter)')
+plt.ylabel('Number of Rentals')
+
+# Weekdays
+plt.subplot(3, 1, 2)
+sns.boxplot(x='day_name', y='rentals', data=df, order=day_order)
+plt.title('Bike Rentals by Day of Week')
+plt.xlabel('Day of Week')
+plt.ylabel('Number of Rentals')
+plt.xticks(rotation=45)
+
+# Weather conditions
+plt.subplot(3, 1, 3)
+sns.boxplot(x='weathersit', y='rentals', data=df)
+plt.title('Bike Rentals by Weather Situation')
+plt.xlabel('Weather Situation (1:Clear, 2:Mist, 3:Light Rain/Snow, 4:Heavy Rain/Snow)')
+plt.ylabel('Number of Rentals')
+
+plt.tight_layout()
+plt.show()
+
+# 3. Correlation heatmap for numerical features
+# Select only numeric columns for correlation
+numeric_cols = df.select_dtypes(include=['number']).columns
+correlation = df[numeric_cols].corr()
+
+plt.figure(figsize=(12, 10))
+sns.heatmap(correlation, annot=True, cmap='coolwarm', fmt='.2f', linewidths=0.5)
+plt.title('Correlation Heatmap')
+plt.tight_layout()
+plt.show()
+
+# Task 5: Time Series Exploration
+# 1. Plot total rentals over time
+plt.figure(figsize=(14, 7))
+plt.plot(df['dteday'], df['rentals'])
+plt.title('Bike Rentals Over Time')
+plt.xlabel('Date')
+plt.ylabel('Number of Rentals')
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+# 2. Group and plot monthly average rentals
+df['month_year'] = df['dteday'].dt.to_period('M')
+monthly_rentals = df.groupby('month_year')['rentals'].mean()
+
+plt.figure(figsize=(14, 7))
+monthly_rentals.plot(kind='bar')
+plt.title('Average Monthly Bike Rentals')
+plt.xlabel('Month')
+plt.ylabel('Average Number of Rentals')
+plt.xticks(rotation=45)
+plt.grid(axis='y')
+plt.tight_layout()
+plt.show()
+
+# 3. Compare average rentals by day of week (working day vs non-working day)
+workday_comparison = df.groupby('workingday')['rentals'].mean()
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=workday_comparison.index, y=workday_comparison.values)
+plt.title('Average Rentals: Working Day vs Non-Working Day')
+plt.xlabel('Working Day (0: No, 1: Yes)')
+plt.ylabel('Average Number of Rentals')
+plt.tight_layout()
+plt.show()
+
+# Additional comparison by day of week
+day_comparison = df.groupby('day_name')['rentals'].mean().reindex(day_order)
+
+plt.figure(figsize=(12, 6))
+sns.barplot(x=day_comparison.index, y=day_comparison.values)
+plt.title('Average Rentals by Day of Week')
+plt.xlabel('Day of Week')
+plt.ylabel('Average Number of Rentals')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# Task 6: Insight Generation
+# We'll print some key insights based on our analysis
+print("\nKEY INSIGHTS FROM THE ANALYSIS:")
+
+# Correlation between temperature and rentals
+temp_corr = correlation.loc['temp', 'rentals']
+print(f"1. Temperature and rentals have a correlation of {temp_corr:.2f}")
+
+# Season with highest rentals
+season_rentals = df.groupby('season')['rentals'].mean()
+highest_season = season_rentals.idxmax()
+print(f"2. Season {highest_season} has the highest average rentals ({season_rentals[highest_season]:.2f})")
+
+# Holiday effect
+holiday_effect = df.groupby('holiday')['rentals'].mean()
+print(f"3. Average rentals on holidays: {holiday_effect[1]:.2f}")
+print(f"   Average rentals on non-holidays: {holiday_effect[0]:.2f}")
+print(f"   Percent difference: {((holiday_effect[0] - holiday_effect[1])/holiday_effect[0]*100):.2f}%")
+
+# Weather impact
+weather_rentals = df.groupby('weathersit')['rentals'].mean()
+print("\n4. Weather impact on average rentals:")
+for weather, avg_rental in weather_rentals.items():
+    weather_name = {1: "Clear", 2: "Mist", 3: "Light Rain/Snow", 4: "Heavy Rain/Snow"}.get(weather, f"Unknown ({weather})")
+    print(f"   {weather_name}: {avg_rental:.2f} rentals")
+
+# Working day vs weekend effect
+print("\n5. Working day vs weekend:")
+for day_type, avg_rental in workday_comparison.items():
+    day_name = "Working day" if day_type == 1 else "Weekend/Holiday"
+    print(f"   {day_name}: {avg_rental:.2f} rentals")
