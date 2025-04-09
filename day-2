@@ -35,6 +35,25 @@ print(df.head())
 print("\nDescriptive Statistics:")
 print(df.describe())
 
+# First, check the datatypes of your columns
+print(df.dtypes)
+
+# Convert columns to numeric if they contain string values that look like numbers
+for col in df.columns:
+    if df[col].dtype == 'object':
+        try:
+            df[col] = pd.to_numeric(df[col])
+        except:
+            print(f"Could not convert column {col} to numeric")
+
+# Remove any non-numeric columns for correlation analysis
+numeric_df = df.select_dtypes(include=['number'])
+print("Columns used for correlation:", numeric_df.columns.tolist())
+
+# Now try the correlation
+correlation_matrix = numeric_df.corr(method='pearson')
+print(correlation_matrix)
+
 # 1. Correlation Analysis
 print("\n1. CORRELATION ANALYSIS")
 print("\nPearson Correlation Matrix:")
