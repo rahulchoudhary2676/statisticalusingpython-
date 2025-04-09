@@ -11,42 +11,34 @@ from statsmodels.formula.api import ols
 plt.style.use('seaborn-v0_8')
 sns.set(font_scale=1.2)
 
-# Generate a synthetic dataset with Age, Income, and Spending Score
-np.random.seed(42)  # For reproducibility
+# Load the dataset
+# If you have the file locally:
+df = pd.read_csv('large_sales_data.csv')
 
-# Generate 100 samples
-n_samples = 100
-
-# Age between 18 and 70
-age = np.random.randint(18, 71, size=n_samples)
-
-# Income between 30000 and 120000, positively correlated with age
-income = 30000 + (age - 18) * 1000 + np.random.normal(0, 10000, size=n_samples)
-income = np.clip(income, 30000, 120000)  # Limiting to our desired range
-
-# Spending score (1-100), negatively correlated with age and positively with income
-spending_score = 70 - (age - 18) * 0.5 + (income - 30000) * 0.0005 + np.random.normal(0, 10, size=n_samples)
-spending_score = np.clip(spending_score, 1, 100)  # Limiting to our desired range
-
-# Create a DataFrame
-data = pd.DataFrame({
-    'Age': age,
-    'Income': income,
-    'Spending_Score': spending_score
-})
+# If you don't have the file locally, you can create the dataframe with the data from the image
+# Uncomment and use this if needed:
+'''
+data = {
+    'Group': ['Radio Ads', 'Online Ads', 'Radio Ads', 'Radio Ads', 'Online Ads', 'Online Ads', 'Radio Ads', 'TV Ads'],
+    'Sales': [459.35, 304.21, 348.63, 377.22, 317.20, 346.31, 330.39, 251.62],
+    'Ad_Cost': [3886.13, 3441.62, 4797.23, 2586.60, 4816.35, 1540.01, 2935.02, 2070.55],
+    'Clicks': [7948, 5308, 7024, 3928, 3330, 588, 7214, 9630]
+}
+df = pd.DataFrame(data)
+'''
 
 # Display first few rows of the dataset
-print("Generated Dataset:")
-print(data.head())
+print("Dataset:")
+print(df.head())
 
 # Basic descriptive statistics
 print("\nDescriptive Statistics:")
-print(data.describe())
+print(df.describe())
 
 # 1. Correlation Analysis
 print("\n1. CORRELATION ANALYSIS")
 print("\nPearson Correlation Matrix:")
-correlation_matrix = data.corr(method='pearson')
+correlation_matrix = df.corr(method='pearson')
 print(correlation_matrix)
 
 # Visualize correlation matrix
@@ -56,169 +48,140 @@ plt.title('Correlation Matrix Heatmap')
 plt.tight_layout()
 plt.show()
 
-# Scatter plots to visualize relationships
-fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+# Create scatter plots with regression lines
+fig, axes = plt.subplots(2, 2, figsize=(16, 12))
 
-# Age vs Income
-sns.scatterplot(x='Age', y='Income', data=data, ax=axes[0])
-axes[0].set_title('Age vs Income')
+# Sales vs Ad_Cost
+sns.scatterplot(x='Ad_Cost', y='Sales', data=df, hue='Group', ax=axes[0, 0])
+sns.regplot(x='Ad_Cost', y='Sales', data=df, scatter=False, ax=axes[0, 0], color='black')
+axes[0, 0].set_title('Sales vs Ad Cost')
 
-# Age vs Spending Score
-sns.scatterplot(x='Age', y='Spending_Score', data=data, ax=axes[1])
-axes[1].set_title('Age vs Spending Score')
+# Sales vs Clicks
+sns.scatterplot(x='Clicks', y='Sales', data=df, hue='Group', ax=axes[0, 1])
+sns.regplot(x='Clicks', y='Sales', data=df, scatter=False, ax=axes[0, 1], color='black')
+axes[0, 1].set_title('Sales vs Clicks')
 
-# Income vs Spending Score
-sns.scatterplot(x='Income', y='Spending_Score', data=data, ax=axes[2])
-axes[2].set_title('Income vs Spending Score')
+# Ad_Cost vs Clicks
+sns.scatterplot(x='Clicks', y='Ad_Cost', data=df, hue='Group', ax=axes[1, 0])
+sns.regplot(x='Clicks', y='Ad_Cost', data=df, scatter=False, ax=axes[1, 0], color='black')
+axes[1, 0].set_title('Ad Cost vs Clicks')
+
+# Group-wise Sales comparison
+sns.barplot(x='Group', y='Sales', data=df, ax=axes[1, 1])
+axes[1, 1].set_title('Sales by Advertising Group')
+axes[1, 1].set_ylim(0, df['Sales'].max() * 1.2)
 
 plt.tight_layout()
-plt.show()
-
-# Pairplot with regression line
-sns.pairplot(data, kind='reg')
-plt.suptitle('Pairwise Relationships with Regression Lines', y=1.02)
 plt.show()
 
 # 2. Regression Analysis
 print("\n2. REGRESSION ANALYSIS")
 
-# A. Simple Linear Regression: Income vs Age
-print("\nA. Simple Linear Regression: Income ~ Age")
-X = sm.add_constant(data['Age'])
-model_income = sm.OLS(data['Income'], X).fit()
-print(model_income.summary())
+# A. Simple Linear Regression: Sales vs Ad_Cost
+print("\nA. Simple Linear Regression: Sales ~ Ad_Cost")
+X = sm.add_constant(df['Ad_Cost'])
+model_sales_cost = sm.OLS(df['Sales'], X).fit()
+print(model_sales_cost.summary())
 
 # Visualize the regression line
 plt.figure(figsize=(10, 6))
-sns.regplot(x='Age', y='Income', data=data, line_kws={'color': 'red'})
-plt.title('Income vs Age with Regression Line')
+sns.regplot(x='Ad_Cost', y='Sales', data=df, line_kws={'color': 'red'})
+plt.title('Sales vs Ad Cost with Regression Line')
 plt.tight_layout()
 plt.show()
 
-# B. Simple Linear Regression: Spending Score vs Age
-print("\nB. Simple Linear Regression: Spending_Score ~ Age")
-model_spending_age = sm.OLS(data['Spending_Score'], X).fit()
-print(model_spending_age.summary())
+# B. Simple Linear Regression: Sales vs Clicks
+print("\nB. Simple Linear Regression: Sales ~ Clicks")
+X = sm.add_constant(df['Clicks'])
+model_sales_clicks = sm.OLS(df['Sales'], X).fit()
+print(model_sales_clicks.summary())
 
 # Visualize the regression line
 plt.figure(figsize=(10, 6))
-sns.regplot(x='Age', y='Spending_Score', data=data, line_kws={'color': 'red'})
-plt.title('Spending Score vs Age with Regression Line')
+sns.regplot(x='Clicks', y='Sales', data=df, line_kws={'color': 'red'})
+plt.title('Sales vs Clicks with Regression Line')
 plt.tight_layout()
 plt.show()
 
-# C. Simple Linear Regression: Spending Score vs Income
-print("\nC. Simple Linear Regression: Spending_Score ~ Income")
-X = sm.add_constant(data['Income'])
-model_spending_income = sm.OLS(data['Spending_Score'], X).fit()
-print(model_spending_income.summary())
-
-# Visualize the regression line
-plt.figure(figsize=(10, 6))
-sns.regplot(x='Income', y='Spending_Score', data=data, line_kws={'color': 'red'})
-plt.title('Spending Score vs Income with Regression Line')
-plt.tight_layout()
-plt.show()
-
-# D. Multiple Linear Regression: Spending Score vs Age and Income
-print("\nD. Multiple Linear Regression: Spending_Score ~ Age + Income")
-formula = 'Spending_Score ~ Age + Income'
-model_multiple = ols(formula, data=data).fit()
+# C. Multiple Linear Regression: Sales vs Ad_Cost + Clicks
+print("\nC. Multiple Linear Regression: Sales ~ Ad_Cost + Clicks")
+formula = 'Sales ~ Ad_Cost + Clicks'
+model_multiple = ols(formula, data=df).fit()
 print(model_multiple.summary())
 
 # 3. Hypothesis Testing
 print("\n3. HYPOTHESIS TESTING")
 
-# A. t-test: Is there a significant difference in Spending Score between younger and older people?
-age_threshold = data['Age'].median()
-younger_spending = data[data['Age'] < age_threshold]['Spending_Score']
-older_spending = data[data['Age'] >= age_threshold]['Spending_Score']
+# A. t-test: Is there a significant difference in Sales between different advertising groups?
+# First, let's prepare the data for different groups
+groups = df['Group'].unique()
+group_data = {}
 
-print(f"\nA. t-test: Spending Score of people younger than {age_threshold} vs older")
-print(f"Younger group (n={len(younger_spending)}): Mean = {younger_spending.mean():.2f}, SD = {younger_spending.std():.2f}")
-print(f"Older group (n={len(older_spending)}): Mean = {older_spending.mean():.2f}, SD = {older_spending.std():.2f}")
+print("\nA. t-test: Sales between different advertising groups")
+for group in groups:
+    group_data[group] = df[df['Group'] == group]['Sales']
+    print(f"{group} (n={len(group_data[group])}): Mean = {group_data[group].mean():.2f}, SD = {group_data[group].std():.2f}")
 
-t_stat, p_value = stats.ttest_ind(younger_spending, older_spending)
-print(f"t-statistic: {t_stat:.4f}")
-print(f"p-value: {p_value:.4f}")
-print(f"Interpretation: {'Significant difference' if p_value < 0.05 else 'No significant difference'} in Spending Score between age groups at α=0.05")
-
-# Visualize the groups
-plt.figure(figsize=(10, 6))
-sns.boxplot(x=data['Age'] < age_threshold, y=data['Spending_Score'], 
-            labels=[f'Older (Age ≥ {age_threshold})', f'Younger (Age < {age_threshold})'])
-plt.title('Spending Score by Age Group')
-plt.xlabel('Age Group')
-plt.ylabel('Spending Score')
-plt.tight_layout()
-plt.show()
-
-# B. t-test: Is there a significant difference in Spending Score between lower and higher income people?
-income_threshold = data['Income'].median()
-lower_income_spending = data[data['Income'] < income_threshold]['Spending_Score']
-higher_income_spending = data[data['Income'] >= income_threshold]['Spending_Score']
-
-print(f"\nB. t-test: Spending Score of people with income lower than {income_threshold:.2f} vs higher")
-print(f"Lower income group (n={len(lower_income_spending)}): Mean = {lower_income_spending.mean():.2f}, SD = {lower_income_spending.std():.2f}")
-print(f"Higher income group (n={len(higher_income_spending)}): Mean = {higher_income_spending.mean():.2f}, SD = {higher_income_spending.std():.2f}")
-
-t_stat, p_value = stats.ttest_ind(lower_income_spending, higher_income_spending)
-print(f"t-statistic: {t_stat:.4f}")
-print(f"p-value: {p_value:.4f}")
-print(f"Interpretation: {'Significant difference' if p_value < 0.05 else 'No significant difference'} in Spending Score between income groups at α=0.05")
+# Compare groups if there are at least 2 groups
+if len(groups) >= 2:
+    # Let's do pairwise t-tests between the groups
+    for i in range(len(groups)):
+        for j in range(i+1, len(groups)):
+            group1 = groups[i]
+            group2 = groups[j]
+            
+            if len(group_data[group1]) > 1 and len(group_data[group2]) > 1:
+                t_stat, p_value = stats.ttest_ind(group_data[group1], group_data[group2], equal_var=False)
+                print(f"\nt-test: {group1} vs {group2}")
+                print(f"t-statistic: {t_stat:.4f}")
+                print(f"p-value: {p_value:.4f}")
+                print(f"Interpretation: {'Significant difference' if p_value < 0.05 else 'No significant difference'} in Sales between {group1} and {group2} at α=0.05")
+            else:
+                print(f"\nCannot perform t-test between {group1} and {group2} due to insufficient samples")
 
 # Visualize the groups
 plt.figure(figsize=(10, 6))
-sns.boxplot(x=data['Income'] < income_threshold, y=data['Spending_Score'], 
-            labels=[f'Higher Income (≥ {income_threshold:.2f})', f'Lower Income (< {income_threshold:.2f})'])
-plt.title('Spending Score by Income Group')
-plt.xlabel('Income Group')
-plt.ylabel('Spending Score')
+sns.boxplot(x='Group', y='Sales', data=df)
+plt.title('Sales by Advertising Group')
+plt.xlabel('Advertising Group')
+plt.ylabel('Sales')
 plt.tight_layout()
 plt.show()
 
-# C. ANOVA test: Compare Spending Score across multiple age groups
-# Create age groups
-data['Age_Group'] = pd.cut(data['Age'], bins=[17, 30, 45, 60, 71], labels=['18-30', '31-45', '46-60', '61-70'])
+# B. ANOVA: Compare Sales across advertising groups
+print("\nB. ANOVA: Compare Sales across advertising groups")
+groups_list = [df[df['Group'] == group]['Sales'] for group in groups if len(df[df['Group'] == group]) > 0]
 
-print("\nC. ANOVA: Compare Spending Score across age groups")
-for group in data['Age_Group'].unique():
-    group_data = data[data['Age_Group'] == group]['Spending_Score']
-    print(f"Age group {group} (n={len(group_data)}): Mean = {group_data.mean():.2f}, SD = {group_data.std():.2f}")
+# Only perform ANOVA if we have at least 2 groups with data
+if len(groups_list) >= 2 and all(len(g) > 0 for g in groups_list):
+    f_stat, p_value = stats.f_oneway(*groups_list)
+    print(f"F-statistic: {f_stat:.4f}")
+    print(f"p-value: {p_value:.4f}")
+    print(f"Interpretation: {'Significant difference' if p_value < 0.05 else 'No significant difference'} in Sales across advertising groups at α=0.05")
+else:
+    print("Cannot perform ANOVA due to insufficient data in groups")
 
-# Perform ANOVA
-groups = [data[data['Age_Group'] == group]['Spending_Score'] for group in data['Age_Group'].unique()]
-f_stat, p_value = stats.f_oneway(*groups)
-print(f"F-statistic: {f_stat:.4f}")
-print(f"p-value: {p_value:.4f}")
-print(f"Interpretation: {'Significant difference' if p_value < 0.05 else 'No significant difference'} in Spending Score across age groups at α=0.05")
-
-# Visualize the groups
-plt.figure(figsize=(12, 6))
-sns.boxplot(x='Age_Group', y='Spending_Score', data=data)
-plt.title('Spending Score by Age Group')
-plt.xlabel('Age Group')
-plt.ylabel('Spending Score')
-plt.tight_layout()
-plt.show()
+# C. Test correlation significance
+print("\nC. Testing significance of correlations")
+for col1 in ['Sales', 'Ad_Cost', 'Clicks']:
+    for col2 in ['Sales', 'Ad_Cost', 'Clicks']:
+        if col1 != col2:
+            r, p = stats.pearsonr(df[col1], df[col2])
+            print(f"Correlation between {col1} and {col2}: r = {r:.4f}, p-value = {p:.4f}")
+            print(f"Interpretation: Correlation is {'significant' if p < 0.05 else 'not significant'} at α=0.05")
+            print()
 
 # Summary of findings
 print("\nSUMMARY OF FINDINGS:")
 print("1. Correlation Analysis:")
-print(f"   - Age-Income correlation: {correlation_matrix.loc['Age', 'Income']:.2f}")
-print(f"   - Age-Spending Score correlation: {correlation_matrix.loc['Age', 'Spending_Score']:.2f}")
-print(f"   - Income-Spending Score correlation: {correlation_matrix.loc['Income', 'Spending_Score']:.2f}")
+print(f"   - Sales-Ad_Cost correlation: {correlation_matrix.loc['Sales', 'Ad_Cost']:.2f}")
+print(f"   - Sales-Clicks correlation: {correlation_matrix.loc['Sales', 'Clicks']:.2f}")
+print(f"   - Ad_Cost-Clicks correlation: {correlation_matrix.loc['Ad_Cost', 'Clicks']:.2f}")
 
 print("\n2. Regression Analysis:")
-print(f"   - Income vs Age: R-squared = {model_income.rsquared:.4f}, p-value = {model_income.f_pvalue:.4f}")
-print(f"   - Spending Score vs Age: R-squared = {model_spending_age.rsquared:.4f}, p-value = {model_spending_age.f_pvalue:.4f}")
-print(f"   - Spending Score vs Income: R-squared = {model_spending_income.rsquared:.4f}, p-value = {model_spending_income.f_pvalue:.4f}")
-print(f"   - Multiple Regression (Spending Score ~ Age + Income): R-squared = {model_multiple.rsquared:.4f}, p-value = {model_multiple.f_pvalue:.4f}")
+print(f"   - Sales vs Ad_Cost: R-squared = {model_sales_cost.rsquared:.4f}, p-value = {model_sales_cost.f_pvalue:.4f}")
+print(f"   - Sales vs Clicks: R-squared = {model_sales_clicks.rsquared:.4f}, p-value = {model_sales_clicks.f_pvalue:.4f}")
+print(f"   - Multiple Regression (Sales ~ Ad_Cost + Clicks): R-squared = {model_multiple.rsquared:.4f}, p-value = {model_multiple.f_pvalue:.4f}")
 
-print("\n3. Hypothesis Testing:")
-print("   - t-test for Spending Score between age groups: " + 
-      ("Significant difference" if stats.ttest_ind(younger_spending, older_spending)[1] < 0.05 else "No significant difference"))
-print("   - t-test for Spending Score between income groups: " + 
-      ("Significant difference" if stats.ttest_ind(lower_income_spending, higher_income_spending)[1] < 0.05 else "No significant difference"))
-print("   - ANOVA test for Spending Score across multiple age groups: " + 
-      ("Significant difference" if stats.f_oneway(*groups)[1] < 0.05 else "No significant difference"))
+print("\n3. Hypothesis Testing Results:")
+# Add your summary of hypothesis testing results here based on the actual outcomes
