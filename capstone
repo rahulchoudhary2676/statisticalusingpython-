@@ -336,3 +336,112 @@ print(df.info())
 # Statistical summary
 print("\nStatistical Summary:")
 print(df.describe())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# -------------------------------------------------------------------------
+# PART 3: ANOVA - TESTING SALES VARIATIONS ACROSS MULTIPLE GROUPS
+# -------------------------------------------------------------------------
+
+print("\n" + "="*80)
+print("PART 3: ANOVA - TESTING SALES VARIATIONS ACROSS MULTIPLE GROUPS")
+print("="*80)
+
+# 1. One-Way ANOVA for Marketing Strategies
+print("\nOne-Way ANOVA: Marketing Strategies")
+
+# Make sure we're using the correct column name - adjust this to match your actual column name
+marketing_col = 'Marketing'  # Use 'Marketing Strategy' if that's your exact column name
+
+# Using scipy.stats for ANOVA
+marketing_groups = [df[df[marketing_col] == strat]['Sales'] for strat in df[marketing_col].unique()]
+f_stat, p_val = stats.f_oneway(*marketing_groups)
+print(f"F-statistic: {f_stat:.4f}")
+print(f"p-value: {p_val:.4f}")
+print("Interpretation:", "Significant difference" if p_val < 0.05 else "No significant difference", "at α=0.05")
+
+# Using statsmodels for more detailed output - with proper quoting for column names with spaces
+try:
+    # If your column is named 'Marketing'
+    formula = 'Sales ~ C(Marketing)'
+    
+    # If your column is named 'Marketing Strategy' (with a space)
+    # formula = 'Sales ~ C("Marketing Strategy")'
+    
+    model = ols(formula, data=df).fit()
+    anova_table = sm.stats.anova_lm(model, typ=2)
+    print("\nDetailed ANOVA table for Marketing Strategies:")
+    print(anova_table)
+    
+    # Post-hoc test if ANOVA is significant
+    if p_val < 0.05:
+        print("\nPost-hoc Tukey's HSD test for Marketing Strategies:")
+        tukey = pairwise_tukeyhsd(df['Sales'], df[marketing_col], alpha=0.05)
+        print(tukey)
+except Exception as e:
+    print(f"Error in ANOVA calculation: {str(e)}")
+    print("This might be due to column name issues. Check your dataframe columns with: df.columns")
+    print(f"Your dataframe columns are: {df.columns.tolist()}")
+
+# 2. One-Way ANOVA for Regions
+print("\nOne-Way ANOVA: Regions")
+region_groups = [df[df['Region'] == region]['Sales'] for region in df['Region'].unique()]
+f_stat, p_val = stats.f_oneway(*region_groups)
+print(f"F-statistic: {f_stat:.4f}")
+print(f"p-value: {p_val:.4f}")
+print("Interpretation:", "Significant difference" if p_val < 0.05 else "No significant difference", "at α=0.05")
+
+# Post-hoc test if ANOVA is significant
+if p_val < 0.05:
+    print("\nPost-hoc Tukey's HSD test for Regions:")
+    tukey = pairwise_tukeyhsd(df['Sales'], df['Region'], alpha=0.05)
+    print(tukey)
+
+# 3. One-Way ANOVA for Seasons
+print("\nOne-Way ANOVA: Seasons")
+season_groups = [df[df['Season'] == season]['Sales'] for season in df['Season'].unique()]
+f_stat, p_val = stats.f_oneway(*season_groups)
+print(f"F-statistic: {f_stat:.4f}")
+print(f"p-value: {p_val:.4f}")
+print("Interpretation:", "Significant difference" if p_val < 0.05 else "No significant difference", "at α=0.05")
+
+# Post-hoc test if ANOVA is significant
+if p_val < 0.05:
+    print("\nPost-hoc Tukey's HSD test for Seasons:")
+    tukey = pairwise_tukeyhsd(df['Sales'], df['Season'], alpha=0.05)
+    print(tukey)
+
+# 4. Two-Way ANOVA: Region and Season interaction
+print("\nTwo-Way ANOVA: Region and Season interaction")
+try:
+    formula = 'Sales ~ C(Region) + C(Season) + C(Region):C(Season)'
+    model = ols(formula, data=df).fit()
+    anova_table = sm.stats.anova_lm(model, typ=2)
+    print(anova_table)
+except Exception as e:
+    print(f"Error in Two-Way ANOVA calculation: {str(e)}")
+
+# 5. Two-Way ANOVA: Customer and Marketing interaction
+print("\nTwo-Way ANOVA: Customer and Marketing interaction")
+try:
+    # Adjust the formula based on your actual column names
+    formula = 'Sales ~ C(Customer) + C(Marketing) + C(Customer):C(Marketing)'
+    model = ols(formula, data=df).fit()
+    anova_table = sm.stats.anova_lm(model, typ=2)
+    print(anova_table)
+except Exception as e:
+    print(f"Error in Two-Way ANOVA calculation: {str(e)}")
