@@ -1,5 +1,3 @@
-# statisticalusingpython-
-no po 
 import pandas as pd
 import numpy as np
 
