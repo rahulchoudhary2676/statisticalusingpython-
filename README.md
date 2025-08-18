@@ -1,3 +1,24 @@
+
+I wanted to clarify a few things regarding the resignation process:
+
+1. After submitting my resignation, what is the step-by-step process that usually follows?
+
+
+2. Regarding company devices (like laptop, access card, etc.), when are these typically expected to be submitted—immediately after resignation or only on the last working day?
+
+
+3. During the notice period, if by chance there is a change in circumstances or a new opportunity within the company, is it possible to withdraw my resignation?
+
+
+
+
+
+
+
+
+
+
+
 import pandas as pd
 import numpy as np
 
