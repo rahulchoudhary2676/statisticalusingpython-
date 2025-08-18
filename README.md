@@ -7,7 +7,12 @@ I wanted to clarify a few things regarding the resignation process:
 2. Regarding company devices (like laptop, access card, etc.), when are these typically expected to be submitted—immediately after resignation or only on the last working day?
 
 
-3. During the notice period, if by chance there is a change in circumstances or a new opportunity within the company, is it possible to withdraw my resignation?
+3. Duri
+
+
+
+
+I wanted to quickly connect with you online before I leave, to thank you for your guidance and support. I’ve learned a lot from your approach and insights, and I’d really appreciate any advice you could share about my future. Even though my time here was short, I feel I’ve grown and I’m excited about what I can do next. Looking forward to a brief call with you.
 
 
 
