@@ -1,4 +1,138 @@
 
+First, I’d like to understand the step-by-step process after submitting my resignation. What usually happens next?
+Sure! Here’s a complete list of all possible questions you might want to ask HR when resigning, covering process, documents, devices, settlement, and future options:
+
+
+---
+
+Resignation Process & Timeline
+
+1. What is the step-by-step process after submitting my resignation?
+
+
+2. Who approves my resignation—manager or HR first?
+
+
+3. How long does it usually take for resignation approval?
+
+
+4. Can I resign effective immediately, or do I have to serve full notice?
+
+
+
+Notice Period
+
+5. My contract mentions [X days/weeks] notice—can you confirm my official last working day?
+
+
+6. Is there an option for notice period buyout?
+
+
+7. If I leave earlier or later, how will it affect my final settlement?
+
+
+
+Company Devices & Assets
+
+8. Which company assets (laptop, ID card, access card, software, etc.) need to be returned?
+
+
+9. When are these expected to be returned—immediately after resignation or on the last working day?
+
+
+10. Are there any forms I need to fill for returning devices?
+
+
+
+Handover & Knowledge Transfer
+
+11. What is the expected handover process for my responsibilities?
+
+
+12. Should I prepare documentation or guides for my replacement?
+
+
+13. Who should I share my handover with—manager, team, or HR?
+
+
+
+Full & Final Settlement
+
+14. How is the full & final settlement calculated (salary, bonus, leave encashment, reimbursements)?
+
+
+15. How long does it usually take to receive the settlement?
+
+
+16. Will the settlement be credited to my bank account or paid via cheque?
+
+
+17. What deductions (if any) will be made from my final settlement?
+
+
+
+Documents & Certifications
+
+18. When will I receive my Relieving Letter, Experience Letter, and Service Certificate?
+
+
+19. How do I get my PF account transferred or withdrawn?
+
+
+20. Will I get Form 16 and salary slips for previous months/years?
+
+
+21. Are there any other documents I should request before leaving?
+
+
+
+Benefits & Policies
+
+22. What happens to my health insurance, gratuity, or other benefits after resignation?
+
+
+23. Will my pending leaves be encashed?
+
+
+24. Can I continue certain benefits (like email access or software access) after leaving for a short period?
+
+
+
+Future Considerations
+
+25. During the notice period, if circumstances change or a new opportunity arises internally, can I withdraw my resignation?
+
+
+26. Can HR provide guidance on how to maintain a good reference for future opportunities?
+
+
+27. Who should I contact in the future if I need proof of employment or other documents?
+
+
+
+Exit Interview
+
+28. Will I have an exit interview?
+
+
+29. What kind of questions are usually asked, and how should I prepare?
+
+
+30. Can I provide feedback or suggestions during the exit interview?
+
+
+
+
+---
+
+If you want, I can make a super-short “HR resignation question checklist” in bullet format, so you can literally have it in front of you and ask everything naturally during a chat or call without missing anything. Do you want me to do that?
+
+
+
+
+
+
+
 I wanted to clarify a few things regarding the resignation process:
 
 1. After submitting my resignation, what is the step-by-step process that usually follows?
