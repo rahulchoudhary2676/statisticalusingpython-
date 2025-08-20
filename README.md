@@ -1,3 +1,44 @@
+Samajh gaya 👍. Aap chahte ho resignation mail me clear mention ho ki:
+
+60 din ka notice period hai (jiski salary company de rahi hai).
+
+Remaining leave encashment bhi settlement me milega.
+
+Aaj hi last working day hai.
+
+Saath hi gratitude aur best wishes bhi ho.
+
+
+Niche aapka final refined resignation mail draft hai:
+
+
+---
+
+Subject: Resignation – [Your Full Name]
+
+Dear [Manager’s Name],
+
+I am writing to formally resign from my position as [Your Role] at [Company Name]. As discussed with HR, I will not be serving the notice period. Today, [Date], will be my last working day. I understand that the company will provide the 60 days’ notice period pay along with the payment for my remaining earned leaves as part of the final settlement.
+
+I would like to sincerely thank you and the organization for the support, guidance, and opportunities I have received during my tenure. Working under your leadership has been a valuable experience, and I am truly grateful for the learning and growth I achieved here.
+
+I wish you, the team, and the company continued success in the future. It has been a privilege to contribute, and I look forward to staying in touch.
+
+Sincerely,
+[Your Full Name]
+
+
+---
+
+Ye version professional, crystal clear, aur gratitude-filled hai.
+
+👉 Kya aap chahte ho main isi mail ka ek aur bhi short aur straight-to-the-point version bana dun jo HR ke liye formal proof ke tarah chale?
+
+
+
+
+
+
 
 First, I’d like to understand the step-by-step process after submitting my resignation. What usually happens next?
 Sure! Here’s a complete list of all possible questions you might want to ask HR when resigning, covering process, documents, devices, settlement, and future options:
